@@ -14,14 +14,16 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 public class FileUploadHandler extends HttpServlet {
-	 private final String UPLOAD_DIRECTORY = "/home/parallels/tomcat7/apache-tomcat-7.0.54/data";
-	 //private final String UPLOAD_DIRECTORY = "/home/ubuntu/apache-tomcat-7.0.54/data";
+	 //private final String UPLOAD_DIRECTORY = "/home/parallels/tomcat7/apache-tomcat-7.0.54/data";
+	 private final String UPLOAD_DIRECTORY = "/home/ubuntu/apache-tomcat-7.0.54/data";
 	 
 	 @Override
 	  protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 	  	throws ServletException, IOException {
-		 String url = ((HttpServletRequest)request).getRequestURL().toString();
-		 System.out.println("URL: " + url);
+		 /*String url = ((HttpServletRequest)request).getRequestURL().toString();
+		 System.out.println("URL: " + url);*/
+		 
+		 System.out.println("Upload Directory: " + UPLOAD_DIRECTORY);
 		 
 		 String fileNameValue = null;
 		 
@@ -39,7 +41,9 @@ public class FileUploadHandler extends HttpServlet {
 					  if(!item.isFormField()){
 						  fileNameValue = new File(item.getName()).getName();
 						  System.out.println("File Name :" + fileNameValue);
-						  item.write(new File(UPLOAD_DIRECTORY + File.separator + fileNameValue));
+						  String fileUploadDirectory = UPLOAD_DIRECTORY + File.separator + fileNameValue;
+						  System.out.println("File Upload Path :" + fileUploadDirectory );
+						  item.write(new File(fileUploadDirectory));
 					  }
 				  }
 				  
