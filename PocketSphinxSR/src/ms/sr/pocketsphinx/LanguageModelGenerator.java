@@ -7,71 +7,70 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 
+import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionContext;
 
-public class SpeechRecognizer {
+public class LanguageModelGenerator {
 	private String result;
 	private boolean initial= true; 
 	//String outputFile = "/home/parallels/workspace/output.txt";
 	String outputFile = "/home/ubuntu/output.txt";
+	private final String UPLOAD_DIRECTORY = "/home/ubuntu/apache-tomcat-7.0.54/data";
+	private final String ARGUMENT_SPACE = " ";
+	private final String FORWARD_SLASH = "/";
+	
+	private String name = "No name specified";
 
-	public String getResult() {
-		recognizedOutput();
-		return result;
+	public String getName() {
+		return name;
 	}
 
-	public void setResult(String result) {
-		this.result = result;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void init(){
+		//File jspFile = new File(Paths.get(".").toAbsolutePath().normalize().toString());
+		//File dir = jspFile.getParentFile();
+
 	}
 	
-	public boolean getInitial() {
-		return initial;
-	}
+	public String generate(){
+		System.out.println("------- Generate -------");
+		HttpSession session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(false);
 
-	public void setInitial(boolean initial) {
-		this.initial = initial;
-	}
-	
-	public String recognize(){
 	    initial = false;
-
-		String lm = new String("/home/ubuntu/downloads/hobbit/4393.lm");
-		String dict = new String("/home/ubuntu/downloads/hobbit/4393.dic");
-		String wavFile = new String("/home/ubuntu/downloads/charlieHobbit.wav");
-		String outputFile = "/home/ubuntu/output.txt";
-		
-		/*String lm = new String("/home/parallels/workspace/hobbit-lm/0901.lm");
-		String dict = new String("/home/parallels/workspace/hobbit-lm/0901.dic");
-		String wavFile = new String("/home/parallels/workspace/charlieHobbit.wav");
-		String outputFile = "/home/parallels/workspace/output.txt";*/
-
-		StringBuilder cmd = new StringBuilder();
-		
-		cmd.append("pocketsphinx_continuous ").append("-infile ").append(wavFile)
-		.append(" -lm ").append(lm).append(" -dict ").append(dict).append(" | tee ")
-		.append(outputFile);
-		
-		System.out.println(" ---- " + cmd);  
 		
 		try {
-			String simpleCmd = "pocketsphinx_continuous";
-
             // using the Runtime exec method:
 			String stdOutput = null;
-			
-			//File currentDirectory = new File(new File(".").getAbsolutePath());
-			//System.out.println(currentDirectory.getCanonicalPath());
 			
 			String myCurrentDir = Paths.get(".").toAbsolutePath().normalize().toString();
 			System.out.println("Current Directory : " + myCurrentDir);
 			
-			String webAppsDir ="/webapps/PocketSphinxSR";
+			//String nameOfLM = (String) session.getAttribute("lmName");
+			//System.out.println("Language Model Name: " + nameOfLM);
+			System.out.println("Language Model Name: " + name);
 			
-			String [] shCmd = new String[]{"/bin/sh", myCurrentDir + webAppsDir + "/scripts/pocketsphinx.sh"};
+			String webAppsDir ="/webapps/PocketSphinxSR";
+			StringBuilder cmdBuilder = new StringBuilder();
+			cmdBuilder.append(myCurrentDir)
+									.append(webAppsDir)
+									.append("/scripts/generate-lm.sh");
+			
+			System.out.println(cmdBuilder.toString());
+			
+			String [] shCmd = new String[]{"/bin/sh", 
+																			cmdBuilder.toString(), UPLOAD_DIRECTORY+"/yastasheer.txt",
+																			name};
+			
+			System.out.println(" ---- " + shCmd);  
+			
 			Process proc = Runtime.getRuntime().exec(shCmd);
             //Process proc = Runtime.getRuntime().exec(cmd.toString());
-            
+			
+			result = "LM generated";
+			
             BufferedReader stdInput = new BufferedReader(new 
                  InputStreamReader(proc.getInputStream()));
 
@@ -79,13 +78,13 @@ public class SpeechRecognizer {
                  InputStreamReader(proc.getErrorStream()));
 
             // get the output from the pocketsphinx_continuous command
-            System.out.println("Output of pocketsphinx_continuous command:\n");
+            System.out.println("Output of generate lm command:\n");
             while ((stdOutput = stdInput.readLine()) != null) {
                 System.out.println(stdOutput);
             }
             
             // get any errors from the pocketsphinx_continuous command
-            System.out.println("Error pocketsphinx_continuous command:\n");
+            System.out.println("Error generate lm command:\n");
             while ((stdOutput = stdError.readLine()) != null) {
                 System.out.println(stdOutput);
             }
@@ -96,10 +95,11 @@ public class SpeechRecognizer {
 			e.printStackTrace();
 		}
 	
+		System.out.println("Result: " + result);
 		return null;
 	}
 	
-	public void recognizedOutput(){
+	/*public void recognizedOutput(){
 		StringBuilder fileOutput = null;
 		
 		BufferedReader br = null;
@@ -126,5 +126,22 @@ public class SpeechRecognizer {
 			result = fileOutput.toString();
 		} else
 			result = "Speech Recognition failed.";
+	}*/
+	
+	public String getResult() {
+		//recognizedOutput();
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+	
+	public boolean getInitial() {
+		return initial;
+	}
+
+	public void setInitial(boolean initial) {
+		this.initial = initial;
 	}
 }

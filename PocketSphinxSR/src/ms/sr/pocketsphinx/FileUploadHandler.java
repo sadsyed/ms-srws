@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -26,6 +27,7 @@ public class FileUploadHandler extends HttpServlet {
 		 System.out.println("Upload Directory: " + UPLOAD_DIRECTORY);
 		 
 		 String fileNameValue = null;
+		 String fileUploadDirectory = null;
 		 
 		  //process only if its multipart content
 		  if(ServletFileUpload.isMultipartContent(request)) {
@@ -41,7 +43,7 @@ public class FileUploadHandler extends HttpServlet {
 					  if(!item.isFormField()){
 						  fileNameValue = new File(item.getName()).getName();
 						  System.out.println("File Name :" + fileNameValue);
-						  String fileUploadDirectory = UPLOAD_DIRECTORY + File.separator + fileNameValue;
+						  fileUploadDirectory = UPLOAD_DIRECTORY + File.separator + fileNameValue;
 						  System.out.println("File Upload Path :" + fileUploadDirectory );
 						  item.write(new File(fileUploadDirectory));
 					  }
@@ -55,13 +57,18 @@ public class FileUploadHandler extends HttpServlet {
 		  } else {
 			  request.setAttribute("message", "Sorry this servlet  only handles file upload request");
 		  }
-		  if(fileNameValue.endsWith("wav")){
+		  
+		  HttpSession session = request.getSession();
+		  
+		  if(fileNameValue !=null && fileNameValue.endsWith("wav")){
 			  System.out.println("File Extension is wav");
+			  
+			  session.setAttribute("uploadedFilePath", fileUploadDirectory);
 			  response.sendRedirect("recognizer.jsp");
 			  //request.getRequestDispatcher("/recognizer.jsp").forward(request,  response);
 		  }
 		  else{
-			  request.getRequestDispatcher("/result.jsp").forward(request, response);
+			  request.getRequestDispatcher("/languageModel.jsp").forward(request, response);
 		  }
 
 	  }

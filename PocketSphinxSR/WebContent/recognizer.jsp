@@ -10,7 +10,8 @@
 <body>
 <f:view>
 <h:form>
-	  		<h3>Successfully uploaded an audio sample. Press Lauch button to preform speech recognition.</h3>
+	  		<h3>Successfully uploaded an audio sample. </h3>
+	  		<h3>Press Launch button to preform speech recognition.</h3>
 	<h:commandButton action="#{speechRecognizer.recognize}" value="Launch Recognition"></h:commandButton>
 	<h:messages layout="table"> </h:messages>
 </h:form>
